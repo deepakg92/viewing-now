@@ -1,5 +1,5 @@
 
-
+id = ""
 url = ""
 
 function getCurrentTabUrl() {
@@ -9,30 +9,56 @@ function getCurrentTabUrl() {
     currentWindow: true
   };
 
-  var callback = function(result) {
+  var callbackLog = function(result) {
     document.getElementById('log').innerHTML = result.response;
   };
 
+  var callbackUrl = function(result) {
+    document.getElementById('url').innerHTML = result.response;
+  };
+
+  var callbackResult = function(result) {
+    document.getElementById('result').innerHTML = result.response;
+  };
   
 
   chrome.tabs.query(queryInfo, function(tabs) {
 
+
     var tab = tabs[0];
     var newURL = tab.url;
-    $.get('http://nvaidya-ld1.linkedin.biz:5050/viewers?articleId='+newURL, callback)
+  
     document.getElementById('url').innerHTML = newURL;
     if(url!=newURL) {
-      var data = {articleId: url , viewerId:"satiwari"};
-      $.post('http://nvaidya-ld1.linkedin.biz:5050/removeViewer', data, callback);
+      document.getElementById('log').innerHTML = url;
+      var data = {articleId: url , viewerId:id};
+      $.post('http://dgopinat-ld1.linkedin.biz:5050/removeViewer', data);
       url = newURL;
-      var data = {articleId: newURL , viewerId:"satiwari"};
-      $.post('http://nvaidya-ld1.linkedin.biz:5050/addViewer', data, callback);
+      var data = {articleId: newURL , viewerId:id};
+      $.post('http://dgopinat-ld1.linkedin.biz:5050/addViewer', data);
+      $.get('http://dgopinat-ld1.linkedin.biz:5050/viewers?articleId='+newURL, callbackResult);      
     }
   });
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  var intervalID = setInterval(getCurrentTabUrl, 1000);
+  var intervalID = setInterval(getCurrentTabUrl, 100);
+  id = makeid();
+});
+
+chrome.storage.sync.get('userid', function(items) {
+    var userid = items.userid;
+    if (userid) {
+        useToken(userid);
+    } else {
+        userid = makeid();
+        chrome.storage.sync.set({userid: userid}, function() {
+            useToken(userid);
+        });
+    }
+    function useToken(userid) {
+        return userid;
+    }
 });
 
 function makeid()
