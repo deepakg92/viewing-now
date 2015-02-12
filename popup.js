@@ -18,25 +18,23 @@ function getCurrentTabUrl() {
   };
 
   var callbackResult = function(result) {
-    document.getElementById('result').innerHTML = result.response;
+    document.getElementById('result').innerHTML = 'Viewing now: ' + result.response;
   };
   
 
   chrome.tabs.query(queryInfo, function(tabs) {
-
-
     var tab = tabs[0];
     var newURL = tab.url;
-  
-    document.getElementById('url').innerHTML = newURL;
+    $.get('http://dgopinat-ld1.linkedin.biz:5050/viewers?articleId='+newURL, callbackResult);      
+    
+    //document.getElementById('url').innerHTML = newURL;
     if(url!=newURL) {
-      document.getElementById('log').innerHTML = url;
+      //document.getElementById('log').innerHTML = url;
       var data = {articleId: url , viewerId:id};
       $.post('http://dgopinat-ld1.linkedin.biz:5050/removeViewer', data);
       url = newURL;
       var data = {articleId: newURL , viewerId:id};
       $.post('http://dgopinat-ld1.linkedin.biz:5050/addViewer', data);
-      $.get('http://dgopinat-ld1.linkedin.biz:5050/viewers?articleId='+newURL, callbackResult);      
     }
   });
 }
